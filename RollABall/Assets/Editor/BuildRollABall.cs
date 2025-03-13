@@ -39,7 +39,7 @@ public class BuildRollABall
             PlayerSettings.defaultScreenWidth = 1920;
 
             logger.Debug("Starting Windows build..." + PlayerSettings.productName + " : " + PlayerSettings.bundleVersion);
-            var buildPlayerOptions = GetBuildPlayerOptions("RollABall.exe", BuildTarget.StandaloneWindows64);
+            var buildPlayerOptions = GetBuildPlayerOptions("RollABallBuild/RollABall.exe", BuildTarget.StandaloneWindows64);
             buildGame(buildPlayerOptions, BuildTargetGroup.Standalone);
 
         }
