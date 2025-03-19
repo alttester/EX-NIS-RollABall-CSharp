@@ -91,7 +91,7 @@ jobs:
         with:
           name: BuildiOSArtifact
           path: |
-            **/RollABall
+            **/RollABallGame.ipa
             **/*.log
 
   build-WebGL:
