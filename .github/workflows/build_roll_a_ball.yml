@@ -83,7 +83,7 @@ jobs:
           export ALTSERVER_HOST="192.168.11.35"
           $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.IosBuildFromCommandLine -logFile buildiOS.log -quit
           ls
-          xcodebuild -project ./RollABall/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
+          xcodebuild -project ./RollABall/RollABall/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
           ls
           xcodebuild -exportArchive -archivePath ./Unity-iPhone.xcarchive -exportOptionsPlist $EXPORT_OPTIONS_LOCATION/export-options.plist -exportPath ./
           ls
