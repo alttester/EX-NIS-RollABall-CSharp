@@ -112,7 +112,7 @@ public class BuildRollABall
 
             logger.Debug("Starting IOS build..." + PlayerSettings.productName + " : " + PlayerSettings.bundleVersion);
 
-            var buildPlayerOptions = GetBuildPlayerOptions("RollABallGame", BuildTarget.iOS, false);
+            var buildPlayerOptions = GetBuildPlayerOptions("RollABall", BuildTarget.iOS, false);
             buildGame(buildPlayerOptions, BuildTargetGroup.iOS);
 
         }

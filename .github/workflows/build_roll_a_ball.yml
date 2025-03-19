@@ -82,7 +82,7 @@ jobs:
           export ALTSERVER_PORT=13000
           export ALTSERVER_HOST="192.168.11.35"
           $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.IosBuildFromCommandLine -logFile buildiOS.log -quit
-          xcodebuild -project ./RollABallGame/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
+          xcodebuild -project ./RollABall/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
           xcodebuild -exportArchive -archivePath ./Unity-iPhone.xcarchive -exportOptionsPlist $EXPORT_OPTIONS_LOCATION/export-options.plist -exportPath ./
           osascript -e 'tell app "Xcode" to quit'
 
@@ -91,7 +91,7 @@ jobs:
         with:
           name: BuildiOSArtifact
           path: |
-            **/RollABallGame.ipa
+            **/RollABall.ipa
             **/*.log
 
   build-WebGL:
