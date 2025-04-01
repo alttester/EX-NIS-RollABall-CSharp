@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using AltTester.AltTesterUnitySDK.Driver;
+using AltTester.AltTesterSDK.Driver;
 using NUnit.Framework;
 using UnityEngine;
 
