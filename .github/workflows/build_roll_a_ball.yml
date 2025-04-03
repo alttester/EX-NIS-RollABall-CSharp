@@ -1,6 +1,13 @@
 name: Build RollABall
 
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to checkout for AltTester submodule"
+        default: "development"
+        required: true
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -13,11 +20,19 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Checkout Submodules to Development Branch
+      - name: Update Submodules
         run: |
-          git submodule foreach --recursive git fetch origin
-          git submodule foreach --recursive git checkout development --force
-          git submodule foreach --recursive git pull origin development
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
 
       - name: Build RollABall
         shell: bash
@@ -41,11 +56,19 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Checkout Submodules to Development Branch
+      - name: Update Submodules
         run: |
-          git submodule foreach --recursive git fetch origin
-          git submodule foreach --recursive git checkout development --force
-          git submodule foreach --recursive git pull origin development
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
 
       - name: Build RollABall
         run: |
@@ -68,11 +91,19 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Checkout Submodules to Development Branch
+      - name: Update Submodules
         run: |
-          git submodule foreach --recursive git fetch origin
-          git submodule foreach --recursive git checkout development --force
-          git submodule foreach --recursive git pull origin development
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
 
       - name: Build RollABall
         run: |
@@ -88,38 +119,38 @@ jobs:
             **/RollABall.apk
             **/*.log
 
-  build-iOS:
-    runs-on: [self-hosted, MAC37]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: "recursive"
+  # build-iOS:
+  #   runs-on: [self-hosted, MAC37]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: "recursive"
 
-      - name: Checkout Submodules to Development Branch
-        run: |
-          git submodule foreach --recursive git fetch origin
-          git submodule foreach --recursive git checkout development --force
-          git submodule foreach --recursive git pull origin development
+  #     - name: Checkout Submodules to Development Branch
+  #       run: |
+  #         git submodule foreach --recursive git fetch origin
+  #         git submodule foreach --recursive git checkout development --force
+  #         git submodule foreach --recursive git pull origin development
 
-      - name: Build RollABall
-        run: |
-          export ALTSERVER_PORT=13000
-          export ALTSERVER_HOST="192.168.11.35"
-          $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.IosBuildFromCommandLine -logFile buildiOS.log -quit
-          ls
-          xcodebuild -project ./RollABall/RollABall/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
-          ls
-          xcodebuild -exportArchive -archivePath ./Unity-iPhone.xcarchive -exportOptionsPlist $EXPORT_OPTIONS_LOCATION/export-options.plist -exportPath ./
-          ls
-          osascript -e 'tell app "Xcode" to quit'
+  #     - name: Build RollABall
+  #       run: |
+  #         export ALTSERVER_PORT=13000
+  #         export ALTSERVER_HOST="192.168.11.35"
+  #         $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.IosBuildFromCommandLine -logFile buildiOS.log -quit
+  #         ls
+  #         xcodebuild -project ./RollABall/RollABall/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
+  #         ls
+  #         xcodebuild -exportArchive -archivePath ./Unity-iPhone.xcarchive -exportOptionsPlist $EXPORT_OPTIONS_LOCATION/export-options.plist -exportPath ./
+  #         ls
+  #         osascript -e 'tell app "Xcode" to quit'
 
-      - uses: actions/upload-artifact@v4
-        if: always() # run this step even if one of the previous steps failed
-        with:
-          name: BuildiOSArtifact
-          path: |
-            **/RollABall.ipa
-            **/*.log
+  #     - uses: actions/upload-artifact@v4
+  #       if: always() # run this step even if one of the previous steps failed
+  #       with:
+  #         name: BuildiOSArtifact
+  #         path: |
+  #           **/RollABall.ipa
+  #           **/*.log
 
   build-WebGL:
     runs-on: [self-hosted, MAC37]
@@ -128,11 +159,19 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Checkout Submodules to Development Branch
+      - name: Update Submodules
         run: |
-          git submodule foreach --recursive git fetch origin
-          git submodule foreach --recursive git checkout development --force
-          git submodule foreach --recursive git pull origin development
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
 
       - name: Build RollABall
         run: |
