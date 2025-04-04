@@ -1,14 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Net.Mime;
+using UnityEngine;
 
 // Include the namespace required to use Unity UI and Input System
 using UnityEngine.InputSystem;
-using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     // Create public variables for player speed, and for the Text UI game objects
     public float speed = 0;
-    public TextMeshProUGUI countText;
+    public Text countText;
     public GameObject winTextObject; 
     public Vector3 previousAcceleration = Vector3.zero;
 

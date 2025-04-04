@@ -1,0 +1,188 @@
+name: Build RollABall
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to checkout for AltTester submodule"
+        default: "development"
+        required: true
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    runs-on: [self-hosted, Windows, product]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
+
+      - name: Build RollABall
+        shell: bash
+        run: |
+          export ALTSERVER_PORT=13000
+          export ALTSERVER_HOST="192.168.11.35"
+          "$UNITY_2021_3_HOME" -batchmode -stackTraceLogType None -projectPath $GITHUB_WORKSPACE/RollABall -executeMethod BuildRollABall.WindowsBuildFromCommandLine -logFile buildWindows.log -quit
+
+      - uses: actions/upload-artifact@v4
+        if: always() # run this step even if one of the previous steps failed
+        with:
+          name: BuildWindowsArtifact
+          path: |
+            **/RollABallBuild/*
+            **/*.log
+
+  build-macOS:
+    runs-on: [self-hosted, MAC37]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
+
+      - name: Build RollABall
+        run: |
+          export ALTSERVER_PORT=13000
+          export ALTSERVER_HOST="192.168.11.35"
+          $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.MacBuildFromCommandLine -logFile buildMac.log -quit
+
+      - uses: actions/upload-artifact@v4
+        if: always() # run this step even if one of the previous steps failed
+        with:
+          name: BuildMacArtifact
+          path: |
+            **/RollABall.app
+            **/*.log
+
+  build-android:
+    runs-on: [self-hosted, MAC37]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
+
+      - name: Build RollABall
+        run: |
+          export ALTSERVER_PORT=13000
+          export ALTSERVER_HOST="192.168.11.35"
+          $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.AndroidBuildFromCommandLine -logFile buildAndroid.log -quit
+
+      - uses: actions/upload-artifact@v4
+        if: always() # run this step even if one of the previous steps failed
+        with:
+          name: BuildAndroidArtifact
+          path: |
+            **/RollABall.apk
+            **/*.log
+
+  # build-iOS:
+  #   runs-on: [self-hosted, MAC37]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: "recursive"
+
+  #     - name: Checkout Submodules to Development Branch
+  #       run: |
+  #         git submodule foreach --recursive git fetch origin
+  #         git submodule foreach --recursive git checkout development --force
+  #         git submodule foreach --recursive git pull origin development
+
+  #     - name: Build RollABall
+  #       run: |
+  #         export ALTSERVER_PORT=13000
+  #         export ALTSERVER_HOST="192.168.11.35"
+  #         $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.IosBuildFromCommandLine -logFile buildiOS.log -quit
+  #         ls
+  #         xcodebuild -project ./RollABall/RollABall/Unity-iPhone.xcodeproj -scheme Unity-iPhone -archivePath Unity-iPhone.xcarchive archive
+  #         ls
+  #         xcodebuild -exportArchive -archivePath ./Unity-iPhone.xcarchive -exportOptionsPlist $EXPORT_OPTIONS_LOCATION/export-options.plist -exportPath ./
+  #         ls
+  #         osascript -e 'tell app "Xcode" to quit'
+
+  #     - uses: actions/upload-artifact@v4
+  #       if: always() # run this step even if one of the previous steps failed
+  #       with:
+  #         name: BuildiOSArtifact
+  #         path: |
+  #           **/RollABall.ipa
+  #           **/*.log
+
+  build-WebGL:
+    runs-on: [self-hosted, MAC37]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule foreach --recursive git reset --hard
+          git submodule foreach --recursive git clean -fd
+          git submodule update --init --recursive
+        
+      - name: Checkout AltTester Submodule Branch
+        shell: bash
+        run: |
+          cd RollABall/Assets/AltTester-Unity-SDK
+          git fetch
+          git checkout "${{ github.event.inputs.branch || 'development' }}"
+          git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
+
+      - name: Build RollABall
+        run: |
+          export ALTSERVER_PORT=13000
+          export ALTSERVER_HOST="192.168.11.35"
+          $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.WebGLBuildFromCommandLine -logFile buildWebGL.log -quit
+
+      - uses: actions/upload-artifact@v4
+        if: always() # run this step even if one of the previous steps failed
+        with:
+          name: BuildWebGLArtifact
+          path: |
+            **/build/webgl
+            **/*.log
