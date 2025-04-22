@@ -23,6 +23,12 @@ on:
         description: 'Branch to checkout for AltTester submodule'
         default: 'development'
         required: true
+      host:
+        description: 'AltServer Host'
+        default: '127.0.0.1'
+      port:
+        description: 'AltServer Port'
+        default: '13000'
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -89,8 +95,8 @@ jobs:
 
       - name: Build RollABall
         run: |
-          export ALTSERVER_PORT=13000
-          export ALTSERVER_HOST="192.168.11.35"
+          export ALTSERVER_PORT=${{ github.event.inputs.port }}
+          export ALTSERVER_HOST="${{ github.event.inputs.host }}"
           case "${{ matrix.platform }}" in
             Windows)
               "$UNITY_2021_3_HOME" -batchmode -stackTraceLogType None -projectPath $GITHUB_WORKSPACE/RollABall -executeMethod BuildRollABall.WindowsBuildFromCommandLine -logFile buildWindows.log -quit
