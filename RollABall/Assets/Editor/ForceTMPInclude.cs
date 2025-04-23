@@ -2,19 +2,21 @@ using UnityEditor;
 using UnityEngine;
 using TMPro;
 
-public class ForceTMPInclude : MonoBehaviour
+public static class ForceTMPSettingsInclude
 {
     [InitializeOnLoadMethod]
-    static void EnsureTMPSettingsIncluded()
+    static void IncludeTMPSettings()
     {
-        TMP_Settings settings = Resources.Load<TMP_Settings>("TMP Settings");
-        if (settings == null)
+        var settings = Resources.Load<TMP_Settings>("TMP Settings");
+        if (settings != null)
         {
-            Debug.LogError("TMP Settings.asset was not found in Resources. Make sure it exists at Assets/TextMesh Pro/Resources/TMP Settings.asset");
+            Debug.Log("✅ TMP_Settings found and will be included in build.");
+            // Mark asset to be included in build
+            EditorUtility.SetDirty(settings);
         }
         else
         {
-            Debug.Log($"✅ TMP Settings will be included in the build. TMP default font: {TMP_Settings.defaultFontAsset}");
+            Debug.LogWarning("⚠️ TMP_Settings not found in Resources folder. Make sure it's named 'TMP Settings' and located under 'Assets/TextMesh Pro/Resources'.");
         }
     }
 }
