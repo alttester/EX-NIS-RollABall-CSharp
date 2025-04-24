@@ -100,6 +100,14 @@ jobs:
           echo "Removing Unity cache folders to ensure clean build"
           rm -rf RollABall/Library RollABall/Temp RollABall/obj RollABall/Logs
 
+      - name: Reset Unity license
+        shell: bash
+        run: |
+          rm -f "$HOME/.local/share/unity3d/Unity/Unity_lic.ulf"
+          echo "${{ secrets.UNITY_LICENSE }}" > unity.ulf
+          mkdir -p "$HOME/.local/share/unity3d/Unity"
+          mv unity.ulf "$HOME/.local/share/unity3d/Unity/Unity_lic.ulf"
+          
       - name: Build RollABall
         run: |
           export ALTSERVER_PORT=${{ github.event.inputs.port }}
