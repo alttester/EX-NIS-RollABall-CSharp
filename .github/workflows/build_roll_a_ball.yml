@@ -93,6 +93,13 @@ jobs:
           git checkout "${{ github.event.inputs.branch || 'development' }}"
           git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
 
+      - name: Cleanup duplicate TextMesh Pro and Unity cache
+        run: |
+          echo "Removing duplicate TextMesh Pro folder from AltTester submodule"
+          rm -rf RollABall/Assets/AltTester-Unity-SDK/Assets/TextMesh\ Pro
+          echo "Removing Unity cache folders to ensure clean build"
+          rm -rf RollABall/Library RollABall/Temp RollABall/obj RollABall/Logs
+
       - name: Build RollABall
         run: |
           export ALTSERVER_PORT=${{ github.event.inputs.port }}
