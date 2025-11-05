@@ -97,7 +97,7 @@ jobs:
         run: |
           cd RollABall/Assets/AltTester-Unity-SDK
           if [[ "$GITHUB_REF" == refs/heads/* ]]; then
-          COMMIT_HASH=$(git rev-parse --short "$GITHUB_SHA")
+          COMMIT_HASH=$(git rev-parse --short HEAD)
           VERSION="2.2.5-$COMMIT_HASH"
           sed -i "s#public static readonly string VERSION = \".*\";#public static readonly string VERSION = \"$VERSION\";#" Assets/AltTester/Runtime/Commands/AltRunner.cs
           sed -i "s#\"version\": \".*\"#\"version\": \"$VERSION\"#" Assets/AltTester/package.json
