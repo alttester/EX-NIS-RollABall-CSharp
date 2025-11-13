@@ -19,16 +19,28 @@ on:
         description: 'Build for WebGL'
         type: boolean
         default: false
+      unity-version:
+        description: 'Unity Version to use'
+        type: choice
+        options:
+          - '2021.3.45f2'
+          - '2022.3.62f3'
+          - '2023.2.22f1'
+          - '6000.0.62f1'
       branch:
         description: 'Branch to checkout for AltTester submodule'
         default: 'development'
         required: true
       host:
-        description: 'AltServer Host'
+        description: 'AltTester Server Host'
         default: '127.0.0.1'
       port:
-        description: 'AltServer Port'
+        description: 'AltTester Server Port'
         default: '13000'
+      alttester-nongpl:
+        description: 'Use AltTester Non-GPL version'
+        type: boolean
+        default: false
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -81,12 +93,14 @@ jobs:
           submodules: 'recursive'
 
       - name: Update Submodules
+        if: ${{ github.event.inputs.alttester-nongpl == 'false' }}
         run: |
           git submodule foreach --recursive git reset --hard
           git submodule foreach --recursive git clean -fd
           git submodule update --init --recursive
 
       - name: Checkout AltTester Submodule Branch
+        if: ${{ github.event.inputs.alttester-nongpl == 'false' }}
         run: |
           cd RollABall/Assets/AltTester-Unity-SDK
           git fetch
@@ -94,6 +108,7 @@ jobs:
           git pull --rebase origin "${{ github.event.inputs.branch || 'development' }}"
 
       - name: Add commit number to AltTester-Unity-SDK version
+        if: ${{ github.event.inputs.alttester-nongpl == 'false' }}
         run: |
           cd RollABall/Assets/AltTester-Unity-SDK
           case "${{ matrix.platform }}" in
@@ -112,35 +127,84 @@ jobs:
           esac
 
       - name: Cleanup duplicate TextMesh Pro and Unity cache
+        if: ${{ github.event.inputs.alttester-nongpl == 'false' }}
         run: |
           echo "Removing duplicate TextMesh Pro folder from AltTester submodule"
           rm -rf RollABall/Assets/AltTester-Unity-SDK/Assets/TextMesh\ Pro
           echo "Removing Unity cache folders to ensure clean build"
           rm -rf RollABall/Library RollABall/Temp RollABall/obj RollABall/Logs
+      
+      - name: Download AltTester Unity SDK Non-GPL
+        if: ${{ github.event.inputs.alttester-nongpl == 'true' }}
+        shell: bash
+        run: |
+          mkdir -p alttester_unitypackage
+          wget -O alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage "${{ secrets.ALTTESTER_NONGPL_DOWNLOAD_URL }}"
 
       - name: Build RollABall
         run: |
           export ALTSERVER_PORT=${{ github.event.inputs.port }}
           export ALTSERVER_HOST="${{ github.event.inputs.host }}"
+          
+          # Select Unity version based on input
+          UNITY_VERSION="${{ github.event.inputs.unity-version }}"
+          echo "Selected Unity version: $UNITY_VERSION"
+          
+          case "$UNITY_VERSION" in
+            "2021.3.45f2")
+              UNITY_PATH="$UNITY_2021_3_HOME"
+              ;;
+            "2022.3.62f3")
+              UNITY_PATH="$UNITY_2022_3_HOME"
+              ;;
+            "2023.2.22f1")
+              UNITY_PATH="$UNITY_2023_2_HOME"
+              ;;
+            "6000.0.62f1")
+              UNITY_PATH="$UNITY_6000_0_HOME"
+              ;;
+            *)
+              echo "Unknown Unity version: $UNITY_VERSION"
+              exit 1
+              ;;
+          esac
+          
+          if [ -z "$UNITY_PATH" ]; then
+            echo "Error: UNITY_PATH is empty"
+            exit 1
+          fi
+
+          if [ ${{ github.event.inputs.alttester-nongpl }} == 'true' ]; then
+            echo "Using AltTester Non-GPL version"
+            
+            FILE=$(find alttester_unitypackage -type f -name "AltTesterUnitySDK_NonGPL.unitypackage")
+            cp $FILE TrashCat/Test2.unitypackage
+            "$UNITY_PATH" \
+              -projectPath "$GITHUB_WORKSPACE/RollABall" \
+              -importPackage "$GITHUB_WORKSPACE/RollABall/Test2.unitypackage" \
+              -batchmode -nographics -quit
+            mv $GITHUB_WORKSPACE/Editor $GITHUB_WORKSPACE/RollABall/Assets
+          fi
+
           case "${{ matrix.platform }}" in
             Windows)
-              "$UNITY_2021_3_HOME" -batchmode -stackTraceLogType None -projectPath $GITHUB_WORKSPACE/RollABall -executeMethod BuildRollABall.WindowsBuildFromCommandLine -logFile buildWindows.log -quit
+              "$UNITY_PATH" -batchmode -stackTraceLogType None -projectPath $GITHUB_WORKSPACE/RollABall -executeMethod BuildRollABall.WindowsBuildFromCommandLine -logFile buildWindows.log -quit
               ;;
             macOS)
-              $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.MacBuildFromCommandLine -logFile buildMac.log -quit
+              "$UNITY_PATH" -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.MacBuildFromCommandLine -logFile buildMac.log -quit
               ;;
             Android)
-              $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.AndroidBuildFromCommandLine -logFile buildAndroid.log -quit
+              "$UNITY_PATH" -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.AndroidBuildFromCommandLine -logFile buildAndroid.log -quit
               ;;
             WebGL)
-              $UNITY_2021_3_HOME -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.WebGLBuildFromCommandLine -logFile buildWebGL.log -quit
+              "$UNITY_PATH" -batchmode -stackTraceLogType None -projectPath $CI_PROJECT_DIR/RollABall -executeMethod BuildRollABall.WebGLBuildFromCommandLine -logFile buildWebGL.log -quit
               ;;
           esac
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Build-${{ matrix.platform }}-Artifact
+          name: Build-${{ matrix.platform }}-${{ github.event.inputs.unity-version }}-Artifact
           path: |
             **/*.log
             **/RollABallBuild/*
