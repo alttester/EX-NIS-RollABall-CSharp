@@ -131,9 +131,12 @@ jobs:
         run: |
           echo "Removing duplicate TextMesh Pro folder from AltTester submodule"
           rm -rf RollABall/Assets/AltTester-Unity-SDK/Assets/TextMesh\ Pro
+
+      - name: Cleanup Unity cache folders
+        run: |
           echo "Removing Unity cache folders to ensure clean build"
           rm -rf RollABall/Library RollABall/Temp RollABall/obj RollABall/Logs
-      
+
       - name: Download AltTester Unity SDK Non-GPL
         if: ${{ github.event.inputs.alttester-nongpl == 'true' }}
         shell: bash
