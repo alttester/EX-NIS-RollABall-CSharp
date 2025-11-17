@@ -178,7 +178,7 @@ jobs:
             echo "Using AltTester Non-GPL version"
             
             FILE=$(find alttester_unitypackage -type f -name "AltTesterUnitySDK_NonGPL.unitypackage")
-            cp $FILE TrashCat/Test2.unitypackage
+            cp $FILE RollABall/Test2.unitypackage
             "$UNITY_PATH" \
               -projectPath "$GITHUB_WORKSPACE/RollABall" \
               -importPackage "$GITHUB_WORKSPACE/RollABall/Test2.unitypackage" \
