@@ -177,6 +177,9 @@ jobs:
           if [ ${{ github.event.inputs.alttester-nongpl }} == 'true' ]; then
             echo "Using AltTester Non-GPL version"
             
+            # Remove existing AltTester-Unity-SDK folder
+            rm -rf RollABall/Assets/AltTester-Unity-SDK
+      
             FILE=$(find alttester_unitypackage -type f -name "AltTesterUnitySDK_NonGPL.unitypackage")
             cp $FILE RollABall/Test2.unitypackage
             "$UNITY_PATH" \
@@ -204,7 +207,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Build-${{ matrix.platform }}-${{ github.event.inputs.unity-version }}-Artifact
+          name: Build-${{ matrix.platform }}-${{ github.event.inputs.unity-version }}${{ github.event.inputs.alttester-nongpl == 'true' && '-NonGPL' || '' }}-Artifact
           path: |
             **/*.log
             **/RollABallBuild/*
