@@ -191,7 +191,16 @@ jobs:
               -projectPath "$GITHUB_WORKSPACE/RollABall" \
               -importPackage "$FILE" \
               -batchmode -nographics -quit
+            
+            # Recreate AltTester Prefab
+            if [ "${{ matrix.platform }}" = "Windows" ]; then
+              "$UNITY_PATH" -batchmode -projectPath $GITHUB_WORKSPACE/RollABall -executeMethod AltTester.AltTesterUnitySDK.Editor.AltTesterEditorWindow.RecreateAltTesterPrefab -quit -logFile recreateAltTesterPrefab.log
+            else
+              "$UNITY_PATH" -batchmode -projectPath $CI_PROJECT_DIR/RollABall -executeMethod AltTester.AltTesterUnitySDK.Editor.AltTesterEditorWindow.RecreateAltTesterPrefab -quit -logFile recreateAltTesterPrefab.log
+            fi
           fi
+          
+          
 
           case "${{ matrix.platform }}" in
             Windows)
