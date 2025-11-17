@@ -185,9 +185,11 @@ jobs:
             rm -f RollABall/Assets/AltTester-Unity-SDK.meta
 
             # Import the package and wait for Unity to finish
+            cp alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage RollABall/Test2.unitypackage
+
             "$UNITY_PATH" \
               -projectPath "$GITHUB_WORKSPACE/RollABall" \
-              -importPackage "alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage" \
+              -importPackage "$GITHUB_WORKSPACE/RollABall/Test2.unitypackage" \
               -batchmode -nographics -quit
             
             mv $GITHUB_WORKSPACE/Editor $GITHUB_WORKSPACE/RollABall/Assets
