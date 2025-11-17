@@ -183,14 +183,11 @@ jobs:
             # Remove existing AltTester-Unity-SDK folder and .meta file
             rm -rf RollABall/Assets/AltTester-Unity-SDK
             rm -f RollABall/Assets/AltTester-Unity-SDK.meta
-      
-            FILE=$(find alttester_unitypackage -type f -name "AltTesterUnitySDK_NonGPL.unitypackage")
-            cp $FILE RollABall/Test2.unitypackage
-            
+
             # Import the package and wait for Unity to finish
             "$UNITY_PATH" \
               -projectPath "$GITHUB_WORKSPACE/RollABall" \
-              -importPackage "$GITHUB_WORKSPACE/RollABall/Test2.unitypackage" \
+              -importPackage "alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage" \
               -batchmode -nographics -quit
             
             mv $GITHUB_WORKSPACE/Editor $GITHUB_WORKSPACE/RollABall/Assets
