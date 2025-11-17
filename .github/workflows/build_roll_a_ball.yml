@@ -191,10 +191,16 @@ jobs:
             -projectPath "$GITHUB_WORKSPACE/RollABall" \
             -importPackage "$GITHUB_WORKSPACE/RollABall/Test2.unitypackage" \
             -batchmode -nographics -quit
-          
+      
+      - name: Move Editor Folder inside Assets
+        run: |
           mv $GITHUB_WORKSPACE/Editor $GITHUB_WORKSPACE/RollABall/Assets
-          
-          # Recreate AltTester Prefab
+
+      - name: Recreate AltTester Prefab
+        if: ${{ github.event.inputs.alttester-nongpl == 'true' }}
+        run: |
+          echo "Recreating AltTester Prefab"
+
           if [ "${{ matrix.platform }}" = "Windows" ]; then
             "$UNITY_PATH" -batchmode -projectPath $GITHUB_WORKSPACE/RollABall -executeMethod AltTester.AltTesterUnitySDK.Editor.AltTesterEditorWindow.RecreateAltTesterPrefab -quit -logFile recreateAltTesterPrefab.log
           else
