@@ -139,7 +139,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p alttester_unitypackage
-          wget -O alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage "${{ secrets.ALTTESTER_NONGPL_DOWNLOAD_URL }}"
+          curl -L -o alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage "${{ secrets.ALTTESTER_NONGPL_DOWNLOAD_URL }}"
 
       - name: Build RollABall
         run: |
