@@ -185,12 +185,15 @@ jobs:
             rm -f RollABall/Assets/AltTester-Unity-SDK.meta
       
             FILE=$(find alttester_unitypackage -type f -name "AltTesterUnitySDK_NonGPL.unitypackage")
+            cp $FILE RollABall/Test2.unitypackage
             
             # Import the package and wait for Unity to finish
             "$UNITY_PATH" \
               -projectPath "$GITHUB_WORKSPACE/RollABall" \
-              -importPackage "$FILE" \
+              -importPackage "$GITHUB_WORKSPACE/RollABall/Test2.unitypackage" \
               -batchmode -nographics -quit
+            
+            mv $GITHUB_WORKSPACE/Editor $GITHUB_WORKSPACE/RollABall/Assets
             
             # Recreate AltTester Prefab
             if [ "${{ matrix.platform }}" = "Windows" ]; then
@@ -199,8 +202,6 @@ jobs:
               "$UNITY_PATH" -batchmode -projectPath $CI_PROJECT_DIR/RollABall -executeMethod AltTester.AltTesterUnitySDK.Editor.AltTesterEditorWindow.RecreateAltTesterPrefab -quit -logFile recreateAltTesterPrefab.log
             fi
           fi
-          
-          
 
           case "${{ matrix.platform }}" in
             Windows)
