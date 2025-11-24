@@ -142,7 +142,21 @@ jobs:
         shell: bash
         run: |
           mkdir -p alttester_unitypackage
-          curl -L -o alttester_unitypackage/AltTesterUnitySDK_NonGPL.unitypackage "${{ secrets.ALTTESTER_NONGPL_DOWNLOAD_URL }}"
+          curl -L -o alttester_unitypackage/AltTesterSDKNonGPLPackage.zip "${{ secrets.ALTTESTER_NONGPL_DOWNLOAD_URL }}"
+          
+          cd alttester_unitypackage
+          unzip -o AltTesterSDKNonGPLPackage.zip
+          
+          # Find the .unitypackage file
+          PACKAGE_FILE=$(find . -name "AltTester_*.unitypackage" -type f | head -n 1)
+          if [ -z "$PACKAGE_FILE" ]; then
+            echo "Error: No AltTester .unitypackage file found in the zip"
+            exit 1
+          fi
+          
+          # Rename to a consistent name for later steps
+          mv "$PACKAGE_FILE" AltTesterUnitySDK_NonGPL.unitypackage
+          cd ..
 
       - name: Set Unity Path
         run: |
