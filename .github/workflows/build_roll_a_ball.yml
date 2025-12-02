@@ -212,6 +212,7 @@ jobs:
             -batchmode -nographics -quit
 
       - name: Move Editor Folder inside Assets
+        if: ${{ github.event.inputs.alttester-nongpl == 'true' }}
         run: |
           mv $GITHUB_WORKSPACE/Editor $GITHUB_WORKSPACE/RollABall/Assets
 
