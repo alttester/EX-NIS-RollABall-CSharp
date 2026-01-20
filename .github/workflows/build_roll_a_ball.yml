@@ -111,16 +111,17 @@ jobs:
         if: ${{ github.event.inputs.alttester-nongpl == 'false' }}
         run: |
           cd RollABall/Assets/AltTester-Unity-SDK
+          # Extract current version from AltRunner.cs
+          CURRENT_VERSION=$(sed -n 's/.*VERSION = "\([^"]*\)".*/\1/p' Assets/AltTester/Runtime/Commands/AltRunner.cs)
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          VERSION="$CURRENT_VERSION-$COMMIT_HASH"
+          
           case "${{ matrix.platform }}" in
             Windows)
-              COMMIT_HASH=$(git rev-parse --short HEAD)
-              VERSION="2.2.5-$COMMIT_HASH"
               sed -i "s#public static readonly string VERSION = \".*\";#public static readonly string VERSION = \"$VERSION\";#" Assets/AltTester/Runtime/Commands/AltRunner.cs
               sed -i "s#\"version\": \".*\"#\"version\": \"$VERSION\"#" Assets/AltTester/package.json
               ;;
             macOS|Android|WebGL)
-              COMMIT_HASH=$(git rev-parse --short HEAD)
-              VERSION="2.2.5-$COMMIT_HASH"
               sed -i '' "s#public static readonly string VERSION = \".*\";#public static readonly string VERSION = \"$VERSION\";#" Assets/AltTester/Runtime/Commands/AltRunner.cs
               sed -i '' "s#\"version\": \".*\"#\"version\": \"$VERSION\"#" Assets/AltTester/package.json
               ;;
